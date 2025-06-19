@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte D3.js - Actividad A06</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 2rem;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    section {
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 800px;
+    }
+    svg {
+      display: block;
+      margin: auto;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reporte Interactivo con D3.js</h1>
+  <p style="text-align:center;">Actividad A06 - Visualizaciones</p>
+
+  <section>
+    <h2>1. Coordenadas del Mouse</h2>
+    <svg id="coords" width="500" height="200"></svg>
+    <script>
+      const svg1 = d3.select("#coords");
+      svg1.on("mousemove", (event) => {
+        const [x, y] = d3.pointer(event);
+        svg1.selectAll("text").remove();
+        svg1.append("text")
+            .attr("x", x + 10)
+            .attr("y", y)
+            .text(`(${x}, ${y})`)
+            .attr("fill", "black");
+      });
+    </script>
+  </section>
+
+  <section>
+    <h2>2. Brush Interactivo</h2>
+    <svg id="brush" width="500" height="100"></svg>
+    <script>
+      const svg2 = d3.select("#brush");
+      const brush = d3.brushX().extent([[0, 0], [500, 100]]);
+      svg2.call(brush);
+    </script>
+  </section>
+
+  <section>
+    <h2>3. Arrastra Círculos</h2>
+    <svg id="drag" width="500" height="200"></svg>
+    <script>
+      const svg3 = d3.select("#drag");
+      const drag = d3.drag()
+        .on("drag", (event, d) => {
+          d3.select(event.sourceEvent.target)
+            .attr("cx", d.x = event.x)
+            .attr("cy", d.y = event.y);
+        });
+
+      const data = [
+        {x: 100, y: 100},
+        {x: 200, y: 100},
+        {x: 300, y: 100}
+      ];
+
+      svg3.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("r", 20)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("fill", "steelblue")
+        .call(drag);
+    </script>
+  </section>
+
+  <section>
+    <h2>4. Gráfico de Barras con Click</h2>
+    <svg id="bars" width="500" height="200"></svg>
+    <script>
+      const svg4 = d3.select("#bars");
+      const barData = [10, 25, 35, 20, 15];
+      const scaleY = d3.scaleLinear().domain([0, 40]).range([0, 150]);
+
+      svg4.selectAll("rect")
+        .data(barData)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => i * 60 + 30)
+        .attr("y", d => 180 - scaleY(d))
+        .attr("width", 40)
+        .attr("height", d => scaleY(d))
+        .attr("fill", "tomato")
+        .on("click", function(event, d) {
+          alert("Valor: " + d);
+        });
+    </script>
+  </section>
+
+  <section>
+    <h2>5. Línea Dinámica</h2>
+    <svg id="line" width="500" height="200"></svg>
+    <script>
+      const svg5 = d3.select("#line");
+      let t = 0;
+
+      function drawLine() {
+        const data = d3.range(100).map(i => ({
+          x: i * 5,
+          y: 100 + 40 * Math.sin((i + t) / 10)
+        }));
+
+        const line = d3.line()
+          .x(d => d.x)
+          .y(d => d.y);
+
+        svg5.selectAll("path").remove();
+        svg5.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "green")
+          .attr("stroke-width", 2)
+          .attr("d", line);
+      }
+
+      d3.interval(() => {
+        t++;
+        drawLine();
+      }, 100);
+    </script>
+  </section>
+</body>
+</html>
